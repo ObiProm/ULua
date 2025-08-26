@@ -6,18 +6,98 @@ Every node, which was created by lua code is just table wrapper for Godot.Node c
 
 Which functions you cant call for `Node`?
 Here is list:
-`Rpc`, `RpcId`, `Connect`, `Disconnect`, `EmitSignal`
+`Rpc`, `RpcId`, `Connect`, `Disconnect`, `EmitSignal`, `Multiplayer`
 
-To use Rpc read [RpcNode](#rpcnode)
+To use `Rpc` read [RpcNode](#rpcnode)<br>
+To use some `Multiplayer` functions use `IsServer()` and `GetUniqueId()`
+
+Navigation:
+- [globals](#globals)
+- [game](#game)
+- [LoadingUI](#loadingui)
+- [RpcNode](#rpcnode)
+- Structs: 
+    - [Room](#room)
+    - [RoomInfo](#roominfo)
+    - [PlayerLobby](#playerlobby)
+    - [PlayerCamera](#playercamera)
+- [Discord Activity](#discordactivity)
+- [Mod structure](#mod-structure)
+- [Recomendations](#recomendations)
+
+<br><br>
+
+# Globals
+
+### `print(...)`
+Prints a message to the console.
+
+### `printError(...)`
+Prints an error message (displayed in red).
+
+### `printWarning(...)`
+Prints a warning message (displayed in yellow).
 
 ---
 
-## `game`
+### `Vector3(X, Y, Z)` → `Vector3`
+
+Creates a 3D vector.
+
+**Parameters:**
+- `X`, `Y`, `Z` (`number`) — Coordinates.
+
+**Returns:**
+- `Vector3` — A new 3D vector.
+
+---
+
+### `Vector2(X, Y)` → `Vector2`
+
+Creates a 2D vector.
+
+**Parameters:**
+- `X`, `Y` (`number`) — Coordinates.
+
+**Returns:**
+- `Vector2` — A new 2D vector.
+
+---
+
+### `IsServer()` → `boolean`
+
+Checks if the current instance is running as a server.
+
+**Returns:**
+- `boolean` — `true` if the application is a server.
+
+---
+
+### `GetUniqueId()` → `boolean`
+
+Returns unique ID
+
+**Returns:**
+- `number` — unique ID of current running instace (1 = server)
+
+<br>
+
+# game
 The main class for interacting with the native functions
 
-**Fields:**
-- `CurrentScene` (`Node`) — Reference to the currently active scene root node.
-- `Root` (`Node`) — Reference to the global scene root.
+### `game.GetCurrentScene()` → `Node`
+
+Returns currently active scene root node.
+
+**Returns:**
+- `Node` — scene node.
+
+### `game.GetRoot()` → `Node`
+
+Reference to the global scene root.
+
+**Returns:**
+- `Node` — root node of app.
 
 
 ### `game.GetUserdataName(object)` → `string`
@@ -55,7 +135,7 @@ local entity = game.CreateNode("CharacterBody3D")
 
 ---
 
-### `game.RegisterClass(className, table, baseType)`
+### `game.RegisterClass(className, table, baseType?)`
 
 Registers a custom node class.
 
@@ -113,7 +193,7 @@ playerObject.Player = playerLobby
 Returns the default UI scene.
 
 **Returns:**
-- `PackedScene` — UI scene template. If you use [PlayerCamera](#global-functions) you must create it before!
+- `PackedScene` — UI scene template.
 
 ---
 
@@ -129,53 +209,9 @@ Converts a raw Godot Node into a Lua-wrapped Node with methods and metatable.
 
 **Note:** Use this when working with nodes passed from Godot scripts.
 
-## Globals
+<br>
 
-### `print(...)`
-Prints a message to the console.
-
-### `printError(...)`
-Prints an error message (displayed in red).
-
-### `printWarning(...)`
-Prints a warning message (displayed in yellow).
-
----
-
-### `Vector3(X, Y, Z)` → `Vector3`
-
-Creates a 3D vector.
-
-**Parameters:**
-- `X`, `Y`, `Z` (`number`) — Coordinates.
-
-**Returns:**
-- `Vector3` — A new 3D vector.
-
----
-
-### `Vector2(X, Y)` → `Vector2`
-
-Creates a 2D vector.
-
-**Parameters:**
-- `X`, `Y` (`number`) — Coordinates.
-
-**Returns:**
-- `Vector2` — A new 2D vector.
-
----
-
-### `IsServer()` → `boolean`
-
-Checks if the current instance is running as a server.
-
-**Returns:**
-- `boolean` — `true` if the application is a server.
-
----
-
-## `LoadingUI` Class
+# LoadingUI
 
 Controls the loading screen interface.
 
@@ -217,7 +253,7 @@ Hides the loading UI by playing the reverse animation.
 
 ## RpcNode
 
-A specialized node for remote procedure calls (RPC). Regular nodes do not support RPC by default. It supports only next types: `number`, `string`, `Vector2`, `Vector3`, `table`
+A specialized node for remote procedure calls (RPC). Regular nodes do not support RPC by default. It supports only next types: `number`, `string`, `boolean`, `Vector2`, `Vector3`, `table`
 
 **Warning** to avoid code execution errors, you need to create functions using ":"(colon) not "."(dot) since the first argument will be self
 
@@ -291,15 +327,38 @@ Retrieves the bound Lua table.
 **Returns:**
 - `table` — The bound table, or `nil` if none.
 
+<br>
 
-## PlayerCamera
+# DiscordActivity
+
+Controls Discord Rich Presence activity.
+
+### `DiscordActivity.SetState(state)`
+
+Sets the activity state (the lower line in Rich Presence).
+
+**Parameters:**
+- `state` (`string`) — The state text, e.g. `"In lobby"` or `"Playing Solo"`.
+
+---
+
+### `DiscordActivity.SetDetails(details)`
+
+Sets the activity details (the upper line in Rich Presence).
+
+**Parameters:**
+- `details` (`string`) — The description of current activity, e.g. `"In menu"` or `"Survival Mode"`.
+
+<br>
+
+# PlayerCamera
 
 **Fields:**
 - `Player` (`PlayerLobby`) — Sets player to this player controller
 
----
+<br>
 
-### `PlayerLobby`
+# PlayerLobby
 
 Represents a player in the lobby or a room.
 
@@ -312,9 +371,9 @@ Represents a player in the lobby or a room.
 - `CurrentTeam` (`Team|nil`) — Reference to the team the player is currently assigned to.
 - `IsRoomAdmin` (`boolean`) — Read-only: true if this player is the admin of the current room.
 
----
+<br>
 
-### `RoomInfo`
+# RoomInfo
 
 Metadata about a room, used for room listing.
 
@@ -325,9 +384,9 @@ Metadata about a room, used for room listing.
 - `Settings` (`RoomSettings`) — Game settings (map, mode, etc.).
 - `PlayersCount` (`integer`) — Current number of players in the room.
 
----
+<br>
 
-### `Room`
+# Room
 
 Represents an active room instance.
 
@@ -357,21 +416,21 @@ end
 
 ---
 
-## Module Structure
+## Mod structure
 
-Mods should be placed in the `mods/` directory.
+Mods have lua folder with `autorun` folder. Scripts in this folder will start after all systems loaded, but before menu started to render.
 
 **Example structure:**
 ```
-mods/
+YourCoolMod/
 └── Gamemodes.json
 └── lua/
-    └── autorun
+    └── autorun/
         └── lua_script1.lua
         └── lua_script2.lua
 ```
 
-Gamemodes.json contains config, example:
+Gamemodes.json contains config with playerble gamemodes, example:
 ```json
 {
     "Standard": {
